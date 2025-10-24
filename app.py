@@ -1,289 +1,710 @@
-# app.py
-import os
-import io
-from typing import Optional
 import streamlit as st
-from PIL import Image, UnidentifiedImageError
 import folium
-from folium import Marker, PolyLine, Polygon
-from streamlit_folium import st_folium
-import pandas as pd
+from streamlit_folium import folium_static
+import json
 
-# ---------------------------
-# Configuração inicial
-# ---------------------------
-st.set_page_config(page_title="Aliança por Floripa", page_icon="🌿", layout="wide")
-
-# ---------------------------
-# Cores e estilo (identidade)
-# ---------------------------
-ACCENT_A = "#00b894"  # verde água (ajustável)
-ACCENT_B = "#06aed5"  # azul (ajustável)
-TEXT = "#0b2b2b"
-MUTED = "#6c7a7a"
-
-st.markdown(
-    f"""
-    <style>
-    :root {{
-        --acc-a: {ACCENT_A};
-        --acc-b: {ACCENT_B};
-    }}
-    body, .stApp, .block-container {{
-        background: #f6fbfb;
-        color: {TEXT};
-    }}
-    .topbar {{
-        background: linear-gradient(90deg,var(--acc-a), var(--acc-b));
-        color: white;
-        padding: 26px;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 16px;
-        box-shadow: 0 10px 30px rgba(6,174,213,0.12);
-    }}
-    .topbar h1 {{ margin:0; font-size:28px; font-weight:800; }}
-    .topbar p {{ margin:6px 0 0; opacity:0.95; }}
-    .card {{ background: white; border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(11,79,127,0.04); }}
-    .map-container {{ border-radius:10px; overflow:hidden; border: 1px solid #e6f3f2; }}
-    .small-muted {{ color: {MUTED}; font-size:13px; }}
-    .team-card {{ border-radius:10px; padding:12px; background: linear-gradient(180deg,#ffffff,#f7fffd); box-shadow: 0 6px 18px rgba(11,79,127,0.03); }}
-    table.dataframe td, table.dataframe th {{ padding: 6px 12px; }}
-    </style>
-    """,
-    unsafe_allow_html=True,
+# Configuração da página
+st.set_page_config(
+    page_title="Aliança por Floripa - Dashboard Operacional",
+    page_icon="💚",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# ---------------------------
-# Helpers de imagem
-# ---------------------------
-def load_logo_local(path="alianca_logo.png") -> Optional[Image.Image]:
-    if os.path.exists(path):
-        try:
-            return Image.open(path)
-        except Exception:
-            return None
-    return None
+# CSS avançado - Cores do site oficial
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+    
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .main {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        padding: 0;
+    }
+    
+    .block-container {
+        padding: 2rem 3rem !important;
+        max-width: 100% !important;
+    }
+    
+    /* Header Premium */
+    .premium-header {
+        background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 50%, #FFA07A 100%);
+        padding: 3rem 4rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 20px 60px rgba(255, 70, 85, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .premium-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .logo-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .header-title {
+        color: white;
+        font-size: 4rem;
+        font-weight: 900;
+        text-align: center;
+        margin: 1rem 0;
+        text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+        letter-spacing: -2px;
+    }
+    
+    .header-subtitle {
+        color: rgba(255,255,255,0.95);
+        font-size: 1.5rem;
+        text-align: center;
+        font-weight: 400;
+    }
+    
+    /* Navigation Modern */
+    .nav-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .nav-button {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 15px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        border: 2px solid #FF4655;
+        cursor: pointer;
+        box-shadow: 0 5px 20px rgba(255, 70, 85, 0.3);
+    }
+    
+    .nav-button:hover {
+        background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 100%);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(255, 70, 85, 0.5);
+    }
+    
+    .nav-button.active {
+        background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 100%);
+        box-shadow: 0 10px 30px rgba(255, 70, 85, 0.6);
+    }
+    
+    /* Cards Premium */
+    .stat-card {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        padding: 2.5rem;
+        border-radius: 20px;
+        border-left: 6px solid #FF4655;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        transition: all 0.4s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(255,70,85,0.2) 0%, transparent 70%);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(255, 70, 85, 0.4);
+        border-left-width: 10px;
+    }
+    
+    .stat-number {
+        font-size: 4rem;
+        font-weight: 900;
+        color: #FF4655;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1.2rem;
+        color: #aaa;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .stat-description {
+        font-size: 0.95rem;
+        color: #888;
+        margin-top: 0.5rem;
+    }
+    
+    /* Mapa Container */
+    .map-container {
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        margin: 2rem 0;
+    }
+    
+    .map-title {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    /* Legend Modern */
+    .legend-container {
+        background: #2d2d2d;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-top: 2rem;
+        border: 2px solid #FF4655;
+    }
+    
+    .legend-title {
+        color: #FF4655;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 10px;
+    }
+    
+    .legend-color {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    
+    .legend-text {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .legend-description {
+        color: #888;
+        font-size: 0.9rem;
+    }
+    
+    /* Team Cards */
+    .team-card {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        padding: 3rem;
+        border-radius: 20px;
+        margin: 2rem 0;
+        border-left: 8px solid #FF4655;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,70,85,0.05) 0%, transparent 70%);
+    }
+    
+    .team-number {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        font-size: 6rem;
+        font-weight: 900;
+        color: rgba(255,70,85,0.2);
+        line-height: 1;
+    }
+    
+    .team-title {
+        color: #FF4655;
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+    
+    .team-focus {
+        color: #aaa;
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        font-weight: 500;
+    }
+    
+    .area-item {
+        background: #1a1a1a;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-radius: 12px;
+        border-left: 4px solid #FF6B6B;
+        transition: all 0.3s;
+    }
+    
+    .area-item:hover {
+        transform: translateX(10px);
+        background: #252525;
+        border-left-width: 6px;
+    }
+    
+    .area-title {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .area-description {
+        color: #888;
+        font-size: 0.95rem;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-left: 1rem;
+    }
+    
+    .status-andamento {
+        background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 180, 219, 0.4);
+    }
+    
+    .status-planejada {
+        background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 70, 85, 0.4);
+    }
+    
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        padding: 2.5rem;
+        border-radius: 20px;
+        border: 2px solid #FF4655;
+        margin: 2rem 0;
+        box-shadow: 0 15px 50px rgba(255, 70, 85, 0.3);
+    }
+    
+    .info-title {
+        color: #FF4655;
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-text {
+        color: #ccc;
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    
+    /* Esconder elementos padrão do Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Scrollbar Dark */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #0a0a0a;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #FF4655;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #FF6B6B;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-def load_uploaded_image(uploaded):
-    if uploaded is None:
-        return None
-    try:
-        image = Image.open(io.BytesIO(uploaded.read()))
-        return image
-    except UnidentifiedImageError:
-        return None
+# Header com Logo
+st.markdown("""
+<div class="premium-header">
+    <div class="logo-container">
+        <img src="https://aliancaporfloripa.com.br/wp-content/uploads/2024/12/logo-alianca.png" 
+             style="height: 120px;" 
+             onerror="this.style.display='none'">
+    </div>
+    <h1 class="header-title">💚 Aliança por Floripa</h1>
+    <p class="header-subtitle">Dashboard Operacional de Revitalização do Centro Histórico</p>
+</div>
+""", unsafe_allow_html=True)
 
-# ---------------------------
-# Sidebar (logo + navegação)
-# ---------------------------
-with st.sidebar:
-    st.markdown("<div style='text-align:center'>", unsafe_allow_html=True)
+# Sistema de navegação moderno
+if 'page' not in st.session_state:
+    st.session_state.page = 'dashboard'
 
-    uploaded_logo = st.file_uploader("📎 Carregar logo do projeto (opcional)", type=["png", "jpg", "jpeg", "svg"])
-    logo = load_uploaded_image(uploaded_logo) or load_logo_local("alianca_logo.png")
+col1, col2, col3, col4, col5 = st.columns(5)
+with col1:
+    if st.button("📊 Dashboard", use_container_width=True):
+        st.session_state.page = 'dashboard'
+with col2:
+    if st.button("🗺️ Mapa Operacional", use_container_width=True):
+        st.session_state.page = 'mapa'
+with col3:
+    if st.button("👥 Equipes", use_container_width=True):
+        st.session_state.page = 'equipes'
+with col4:
+    if st.button("📋 Roteiro", use_container_width=True):
+        st.session_state.page = 'roteiro'
+with col5:
+    if st.button("💚 Sobre", use_container_width=True):
+        st.session_state.page = 'sobre'
 
-    if logo:
-        st.image(logo, width=170)
-    else:
-        st.markdown("<h3 style='color:var(--acc-a);'>Aliança por Floripa</h3>", unsafe_allow_html=True)
-        st.markdown("<div class='small-muted'>Revitalização do Centro Histórico</div>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("---")
-
-    page = st.radio("Navegação", ["Início", "Mapa Interativo", "Equipes", "Roteiro", "Recursos", "Sobre"])
-    st.markdown("---")
-    st.markdown("**Parceiros**")
-    st.markdown("<div style='display:flex;gap:6px;flex-wrap:wrap'><span class='card' style='padding:6px 10px;border-radius:8px;'>ACIF</span><span class='card' style='padding:6px 10px;border-radius:8px;'>CDL</span><span class='card' style='padding:6px 10px;border-radius:8px;'>Conseg</span></div>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.markdown("🔗 [aliancaporfloripa.com.br](https://www.aliancaporfloripa.com.br)")
-
-# ---------------------------
-# Header
-# ---------------------------
-st.markdown("<div class='topbar'><h1>Aliança por Floripa</h1><p>Revitalização do Centro Histórico — foco: Praça Fernando Machado</p></div>", unsafe_allow_html=True)
-
-# ---------------------------
-# Conteúdo das páginas
-# ---------------------------
-
-# Central coords (Praça Fernando Machado area)
-CENTER = [-27.59864, -48.55183]
-
-# Note: below coordinates are approximate. If you have GeoJSON or precise coords, replace them.
-# Polygons/lines created to visually match the areas you provided.
-
-if page == "Início":
-    c1, c2, c3 = st.columns([1,1,1])
-    c1.metric("Áreas Prioritárias", "10")
-    c2.metric("Vasos (Felipe Schmidt)", "69")
-    c3.metric("Equipes", "2 (20 colaboradores)")
-    st.markdown("<div class='card' style='margin-top:12px'><h2>Sobre o Projeto</h2><p class='small-muted'>A Aliança por Floripa mobiliza organizações e cidadãos para revitalizar espaços públicos do centro histórico de Florianópolis. A primeira fase foca em limpeza, replantio e manutenção de praças e ruas centrais.</p></div>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.markdown("### Destaques / Próximas ações")
-    st.write("- Limpeza e revitalização do prédio dos Correios (Praça XV)")
-    st.write("- Replantio dos 69 vasos na Rua Felipe Schmidt")
-    st.write("- Lavação e pintura de pilares na Praça Fernando Machado (apoio Bida / Comcap)")
-    st.markdown("---")
-
-elif page == "Mapa Interativo":
-    st.markdown("## 🗺️ Mapa Interativo — Centro de Florianópolis")
-    st.markdown("Clique nos elementos do mapa para ver o nome do local. As áreas estão destacadas no estilo do projeto.")
-
-    # Criar mapa Folium
-    m = folium.Map(location=CENTER, zoom_start=16.7, tiles="CartoDB Positron")
-
-    # ---------- MARCADORES IMPORTANTES ----------
-    correios_coords = [-27.595215, -48.548846]  # Agência Central dos Correios (Praça XV) approx
-    ticen_coords = [-27.59910, -48.55155]       # Antigo Terminal Cidade (approx)
-    Marker(correios_coords,
-           popup=folium.Popup("<b>Agência Central dos Correios</b><br>Praça XV - Limpeza e pintura", max_width=300),
-           tooltip="Agência dos Correios",
-           icon=folium.Icon(color="darkblue", icon="envelope", prefix="fa")).add_to(m)
-    Marker(ticen_coords,
-           popup=folium.Popup("<b>Antigo Terminal Cidade (TICEN)</b><br>Área de atenção", max_width=300),
-           tooltip="TICEN (antigo)",
-           icon=folium.Icon(color="darkgreen", icon="bus", prefix="fa")).add_to(m)
-
-    # ---------- RUA: Felipe Schmidt (polyline) ----------
-    felipe_coords = [
-        [-27.59620, -48.54960],
-        [-27.59600, -48.54995],
-        [-27.59580, -48.55040],
-    ]
-    PolyLine(felipe_coords, color="#00b8d4", weight=8, opacity=0.7, tooltip="Rua Felipe Schmidt (69 vasos)").add_to(m)
-
-    # ---------- RUA: Conselheiro Mafra ----------
-    mafra_coords = [
-        [-27.59640, -48.54920],
-        [-27.59620, -48.54860],
-    ]
-    PolyLine(mafra_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Rua Conselheiro Mafra").add_to(m)
-
-    # ---------- RUA: Jerônimo Coelho ----------
-    jeronimo_coords = [
-        [-27.59670, -48.54880],
-        [-27.59630, -48.54800],
-    ]
-    PolyLine(jeronimo_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Rua Jerônimo Coelho").add_to(m)
-
-    # ---------- RUA: Trajano ----------
-    trajano_coords = [
-        [-27.59690, -48.54990],
-        [-27.59650, -48.54920],
-    ]
-    PolyLine(trajano_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Rua Trajano").add_to(m)
-
-    # ---------- RUA: Tiradentes ----------
-    tiradentes_coords = [
-        [-27.59490, -48.54830],
-        [-27.59460, -48.54770],
-    ]
-    PolyLine(tiradentes_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Rua Tiradentes").add_to(m)
-
-    # ---------- Calçadão João Pinto ----------
-    joaopinto_coords = [
-        [-27.59780, -48.54880],
-        [-27.59750, -48.54790],
-    ]
-    PolyLine(joaopinto_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Calçadão João Pinto").add_to(m)
-
-    # ---------- Saldanha / Nunes ----------
-    saldanha_coords = [
-        [-27.59720, -48.54980],
-        [-27.59680, -48.55030],
-    ]
-    PolyLine(saldanha_coords, color="#00b8d4", weight=6, opacity=0.7, tooltip="Saldanha Marinho / Nunes Machado").add_to(m)
-
-    # ---------- PRAÇAS: contornos ----------
-    praca_xv = [
-        [-27.59570, -48.54980],
-        [-27.59570, -48.54860],
-        [-27.59620, -48.54860],
-        [-27.59620, -48.54980]
-    ]
-    Polygon(locations=praca_xv, color="#0b6b6a", weight=3, fill=True, fill_color="#0b6b6a", fill_opacity=0.12, tooltip="Praça XV de Novembro").add_to(m)
-
-    praca_fernando = [
-        [-27.59895, -48.55190],
-        [-27.59895, -48.55090],
-        [-27.59795, -48.55090],
-        [-27.59795, -48.55190]
-    ]
-    Polygon(locations=praca_fernando, color="#0b6b6a", weight=3, fill=True, fill_color="#0b6b6a", fill_opacity=0.12, tooltip="Praça Fernando Machado").add_to(m)
-
-    # ---------- Legenda ----------
-    legend_html = f"""
-     <div style='position: fixed; 
-                 bottom: 50px; left: 20px; width: 240px; z-index:9999; font-size:14px;'>
-       <div style='background: white; padding:10px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12);'>
-         <b>Legenda</b>
-         <div style='margin-top:8px'><span style='display:inline-block;width:18px;height:10px;background:#00b8d4;margin-right:8px;'></span>Ruas / Ações (em destaque)</div>
-         <div style='margin-top:6px'><span style='display:inline-block;width:18px;height:10px;background:#0b6b6a;margin-right:8px;'></span>Praças (contorno + preenchimento leve)</div>
-         <div style='margin-top:6px'><span style='display:inline-block;width:18px;height:10px;background:#2f80ed;margin-right:8px;'></span>Marcadores</div>
-       </div>
-     </div>
-    """
-    m.get_root().html.add_child(folium.Element(legend_html))
-
-    # Exibir mapa com folium
-    st.markdown("<div class='map-container card'>", unsafe_allow_html=True)
-    st_folium(m, width="100%", height=680)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("**Observação:** As coordenadas usadas são aproximadas; se você tiver GeoJSON ou o traçado exato exportado do Google MyMaps ou QGIS, posso importar direto para o mapa com precisão total (faça upload pelo sidebar).")
-
-    # Upload de GeoJSON opcional
-    geojson_file = st.file_uploader("📁 (opcional) Upload GeoJSON com traçados exatos das ruas/polígonos", type=["geojson", "json"])
-    if geojson_file:
-        try:
-            import json
-            gj = json.load(geojson_file)
-            folium.GeoJson(gj, name="GeoJSON importado").add_to(m)
-            st.success("GeoJSON carregado. Recarregue a página para visualização interativa atualizada.")
-        except Exception as e:
-            st.error("Erro ao carregar GeoJSON: " + str(e))
-
-elif page == "Equipes":
-    st.markdown("## 👥 Equipes (2 equipes — 10 pessoas cada)")
+# PÁGINA: DASHBOARD
+if st.session_state.page == 'dashboard':
+    # Métricas principais
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="stat-card">
+            <div class="stat-number">10</div>
+            <div class="stat-label">Áreas Prioritárias</div>
+            <div class="stat-description">Centro Histórico de Florianópolis</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="stat-card">
+            <div class="stat-number">69</div>
+            <div class="stat-label">Vasos Ornamentais</div>
+            <div class="stat-description">Replantio na Rua Felipe Schmidt</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="stat-card">
+            <div class="stat-number">20</div>
+            <div class="stat-label">Colaboradores</div>
+            <div class="stat-description">2 Equipes de 10 pessoas</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Info principal
+    st.markdown("""
+    <div class="info-box">
+        <div class="info-title">🎯 Sobre o Projeto</div>
+        <div class="info-text">
+            <p><strong>A Aliança por Floripa é uma iniciativa da sociedade civil</strong> que reúne a ACIF (Associação Empresarial de Florianópolis), a CDL Florianópolis e o Conseg Centro, com apoio da Prefeitura de Florianópolis e do projeto Rumo Certo da Associação Alberto de Souza.</p>
+            <br>
+            <p><strong>Nosso propósito é simples e poderoso:</strong> unir forças para transformar esmolas em oportunidades reais, garantindo que cada contribuição seja aplicada de forma transparente e efetiva para reinserir pessoas na sociedade.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div class='team-card'><h3>Equipe 1 — Zona Norte do Centro</h3><p><b>Membros:</b> 10</p><p><b>Responsabilidades:</b> Limpeza do prédio dos Correios, Vidal Ramos, Conselheiro Mafra, Tiradentes e adjacências.</p></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class="info-box">
+            <div class="info-title">🌆 Impacto Urbano</div>
+            <div class="info-text">
+                ✓ Centro mais limpo e organizado<br>
+                ✓ Espaços públicos revitalizados<br>
+                ✓ Valorização do comércio local<br>
+                ✓ Atração de visitantes
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
     with col2:
-        st.markdown("<div class='team-card'><h3>Equipe 2 — Zona Sul do Centro</h3><p><b>Membros:</b> 10</p><p><b>Responsabilidades:</b> Praça Fernando Machado, Calçadão João Pinto, Praça XV, Felipe Schmidt, Nunes Machado.</p></div>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.markdown("### Atividades principais (por equipe)")
-    st.write("- Lavação e esfregação do piso com cloro (apoio Bida/Comcap)")
-    st.write("- Pintura de pilares e bases de apoio social")
-    st.write("- Replantio e manutenção dos 69 vasos")
-    st.write("- Despichação e limpeza das lixeiras")
+        st.markdown("""
+        <div class="info-box">
+            <div class="info-title">👥 Impacto Social</div>
+            <div class="info-text">
+                ✓ Oportunidades de trabalho digno<br>
+                ✓ Capacitação profissional<br>
+                ✓ Reinserção social efetiva<br>
+                ✓ Transformação de vidas
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-elif page == "Roteiro":
-    st.markdown("## 📋 Roteiro Operacional (resumido)")
-    df = pd.DataFrame([
-        {"Etapa": "1", "Local": "Prédio dos Correios (Praça XV)", "Tarefa": "Limpeza, pintura e retirada de pichações", "Responsável": "Equipe 1", "Status": "Em andamento"},
-        {"Etapa": "2", "Local": "Rua Felipe Schmidt", "Tarefa": "Replantio de 69 vasos e limpeza de piso", "Responsável": "Equipe 2", "Status": "A executar"},
-        {"Etapa": "3", "Local": "Praça XV / Fernando Machado", "Tarefa": "Lavação com cloro e pintura dos apoios", "Responsável": "Ambas", "Status": "Planejado"},
-    ])
-    st.table(df)
+# PÁGINA: MAPA
+elif st.session_state.page == 'mapa':
+    st.markdown('<div class="map-title">🗺️ Mapa Operacional - Centro de Florianópolis</div>', unsafe_allow_html=True)
+    
+    # Criar mapa avançado
+    m = folium.Map(
+        location=[-27.5950, -48.5490],
+        zoom_start=16.5,
+        tiles='CartoDB positron',
+        attr='CartoDB'
+    )
+    
+    # Estilo personalizado para os polígonos
+    style_andamento = {
+        'fillColor': '#00B4DB',
+        'color': '#0083B0',
+        'weight': 3,
+        'fillOpacity': 0.6
+    }
+    
+    style_planejada = {
+        'fillColor': '#FF4655',
+        'color': '#FF6B6B',
+        'weight': 2,
+        'fillOpacity': 0.4
+    }
+    
+    # EM ANDAMENTO - Correios (forma real do prédio)
+    correios_geo = {
+        "type": "Feature",
+        "properties": {
+            "name": "Agência Central dos Correios",
+            "address": "Praça XV de Novembro, 242",
+            "status": "EM ANDAMENTO"
+        },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [-48.5492, -27.5950],
+                [-48.5488, -27.5950],
+                [-48.5488, -27.5952],
+                [-48.5492, -27.5952],
+                [-48.5492, -27.5950]
+            ]]
+        }
+    }
+    
+    folium.GeoJson(
+        correios_geo,
+        style_function=lambda x: style_andamento,
+        tooltip="Agência Central dos Correios",
+        popup=folium.Popup("<b>⚡ Agência Central dos Correios</b><br>Praça XV de Novembro, 242<br><span style='color: #00B4DB; font-weight: bold;'>EM ANDAMENTO</span>", max_width=300)
+    ).add_to(m)
+    
+    # EM ANDAMENTO - Terminal Cidade
+    terminal_geo = {
+        "type": "Feature",
+        "properties": {
+            "name": "Terminal Cidade de Florianópolis",
+            "status": "EM ANDAMENTO"
+        },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [-48.5513, -27.5985],
+                [-48.5508, -27.5985],
+                [-48.5508, -27.5990],
+                [-48.5513, -27.5990],
+                [-48.5513, -27.5985]
+            ]]
+        }
+    }
+    
+    folium.GeoJson(
+        terminal_geo,
+        style_function=lambda x: style_andamento,
+        tooltip="Terminal Cidade de Florianópolis",
+        popup=folium.Popup("<b>⚡ Terminal Cidade de Florianópolis</b><br><span style='color: #00B4DB; font-weight: bold;'>EM ANDAMENTO</span>", max_width=300)
+    ).add_to(m)
+    
+    # PLANEJADAS - Ruas e Praças com nomes
+    areas_planejadas = [
+        {
+            "name": "Rua Felipe Schmidt",
+            "coords": [[-48.5492, -27.5958], [-48.5505, -27.5958], [-48.5505, -27.5960], [-48.5492, -27.5960]],
+            "desc": "Replantio de 69 vasos ornamentais"
+        },
+        {
+            "name": "Praça XV de Novembro",
+            "coords": [[-48.5495, -27.5952], [-48.5485, -27.5952], [-48.5485, -27.5958], [-48.5495, -27.5958]],
+            "desc": "Jardinagem e limpeza de mobiliário"
+        },
+        {
+            "name": "Praça Fernando Machado",
+            "coords": [[-48.5515, -27.5970], [-48.5505, -27.5970], [-48.5505, -27.5980], [-48.5515, -27.5980]],
+            "desc": "Manutenção de áreas verdes"
+        },
+        {
+            "name": "Rua Conselheiro Mafra",
+            "coords": [[-48.5495, -27.5962], [-48.5480, -27.5962], [-48.5480, -27.5964], [-48.5495, -27.5964]],
+            "desc": "Varrição e higienização"
+        },
+        {
+            "name": "Rua Tiradentes",
+            "coords": [[-48.5485, -27.5945], [-48.5470, -27.5945], [-48.5470, -27.5947], [-48.5485, -27.5947]],
+            "desc": "Limpeza de vias"
+        },
+        {
+            "name": "Calçadão João Pinto",
+            "coords": [[-48.5490, -27.5975], [-48.5475, -27.5975], [-48.5475, -27.5977], [-48.5490, -27.5977]],
+            "desc": "Limpeza completa"
+        }
+    ]
+    
+    for area in areas_planejadas:
+        area_geo = {
+            "type": "Feature",
+            "properties": {"name": area["name"]},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[coord[0], coord[1]] for coord in area["coords"]]]
+            }
+        }
+        
+        folium.GeoJson(
+            area_geo,
+            style_function=lambda x: style_planejada,
+            tooltip=area["name"],
+            popup=folium.Popup(f"<b>📍 {area['name']}</b><br>{area['desc']}<br><span style='color: #FF4655; font-weight: bold;'>PLANEJADA</span>", max_width=300)
+        ).add_to(m)
+    
+    # Adicionar marcadores com nomes das ruas
+    for area in areas_planejadas:
+        center_lat = sum([c[1] for c in area["coords"]]) / len(area["coords"])
+        center_lon = sum([c[0] for c in area["coords"]]) / len(area["coords"])
+        
+        folium.Marker(
+            location=[center_lat, center_lon],
+            icon=folium.DivIcon(html=f'<div style="background: rgba(255,70,85,0.9); color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 11px; white-space: nowrap;">{area["name"]}</div>')
+        ).add_to(m)
+    
+    folium_static(m, width=1400, height=700)
+    
+    # Legenda
+    st.markdown("""
+    <div class="legend-container">
+        <div class="legend-title">📊 Legenda do Mapa</div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%);"></div>
+            <div>
+                <div class="legend-text">🔵 Em Andamento</div>
+                <div class="legend-description">Agência Central dos Correios • Terminal Cidade</div>
+            </div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 100%);"></div>
+            <div>
+                <div class="legend-text">🔴 Planejadas</div>
+                <div class="legend-description">Ruas e Praças aguardando início dos trabalhos</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-elif page == "Recursos":
-    st.markdown("## 🧰 Recursos e Materiais")
-    st.markdown("- **Equipamentos de limpeza:** vassouras, pás, carrinhos, sacos 100L, lavadora de pressão (se disponível).")
-    st.markdown("- **Jardinagem:** 69 mudas, substrato, adubo, regadores, ferramentas de poda.")
-    st.markdown("- **EPIs:** luvas, coletes identificadores, bonés, protetor solar, kit primeiros socorros.")
-    st.markdown("- **Logística:** veículos para transporte, cones, sinalização, rádio/celular para coordenação.")
-    st.warning("Checklist: Uso obrigatório de EPIs, sinalização das áreas, hidratação e pausas regulares.")
-
-else:  # Sobre
-    st.markdown("## ℹ️ Sobre")
-    st.markdown("A Aliança por Floripa é uma iniciativa da sociedade civil com apoio da ACIF, CDL, Conseg Centro e Prefeitura de Florianópolis.")
-    st.markdown("Objetivo: revitalizar o centro histórico com ações de limpeza, replantio e geração de trabalho digno.")
-    st.markdown("---")
-    st.markdown("© Aliança por Floripa — www.aliancaporfloripa.com.br")
-
-# ---------------------------
-# Rodapé discreto
-# ---------------------------
-st.markdown("<div style='text-align:center; color:#6c7a7a; margin-top:18px;'>Aliança por Floripa • Projeto de revitalização do Centro Histórico</div>", unsafe_allow_html=True)
+# PÁGINA: EQUIPES
+elif st.session_state.page == 'equipes':
+    st.markdown('<div class="map-title">👥 Distribuição das Equipes</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="team-card">
+        <div class="team-number">01</div>
+        <div class="team-title">🟦 EQUIPE 1 — Zona Comercial Norte</div>
+        <div class="team-focus">10 Colaboradores • Foco: Revitalização comercial e replantio</div>
+        
+        <div class="area-item">
+            <div class="area-title">🔵 Agência Central dos Correios <span class="status-badge status-andamento">Em Andamento</span></div>
+            <div class="area-description">Praça XV de Novembro, 242 • Limpeza completa da área externa e entorno</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">🌸 Rua Felipe Schmidt <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Replantio de 69 vasos com flores e plantas ornamentais</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Rua Conselheiro Mafra <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Varrição, coleta de resíduos e higienização de calçadas</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Rua Jerônimo Coelho <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Limpeza de vias e manutenção de áreas públicas</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Rua Trajano <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Varrição e organização de espaços públicos</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="team-card">
+        <div class="team-number">02</div>
+        <div class="team-title">🟥 EQUIPE 2 — Praças e Zona Sul</div>
+        <div class="team-focus">10 Colaboradores • Foco: Áreas de convivência e espaços públicos</div>
+        
+        <div class="area-item">
+            <div class="area-title">🌳 Praça XV de Novembro <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Jardinagem, limpeza de bancos e mobiliário urbano</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">🌳 Praça Fernando Machado <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Manutenção de áreas verdes e limpeza geral</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Rua Tiradentes <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Varrição e higienização de calçadas</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Calçadão João Pinto <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Limpeza completa do calçadão e áreas de convivência</div>
+        </div>
+        
+        <div class="area-item">
+            <div class="area-title">📍 Ruas Saldanha Marinho e Nunes Machado <span class="status-badge status-planejada">Planejada</span></div>
+            <div class="area-description">Varrição fina, recolhimento de resíduos e manutenção</div>
+        </div>
+        
+        <div class="area-item">
