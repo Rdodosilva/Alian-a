@@ -650,6 +650,224 @@ elif st.session_state.page == 'equipes':
         <div class="team-focus">10 Colaboradores • Foco: Revitalização comercial e replantio</div>
         
         <div class="area-item">
+            <div class="area-title">🔵 Terminal Cidade de Florianópolis <span class="status-badge status-andamento">Em Andamento</span></div>
+            <div class="area-description">Limpeza e organização da área do terminal</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# PÁGINA: ROTEIRO
+elif st.session_state.page == 'roteiro':
+    st.markdown('<div class="map-title">📋 Roteiro Operacional</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box">
+        <div class="info-title">🔄 Fase 1: Preparação e Briefing</div>
+        <div class="info-text">
+            • Encontro de todas as equipes no ponto de reunião central<br>
+            • Distribuição de EPIs (luvas, coletes identificados, bonés)<br>
+            • Distribuição de materiais, ferramentas e equipamentos<br>
+            • Briefing detalhado com orientações de segurança e responsabilidades<br>
+            • Deslocamento organizado para as áreas de atuação
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="team-card">
+            <div class="team-number">01</div>
+            <div class="team-title">🟦 Fase 2: Execução — Equipe 1</div>
+            
+            <div class="area-item">
+                <div class="area-title">1. Agência dos Correios</div>
+                <div class="area-description">Limpeza completa da área externa, calçadas e entorno imediato</div>
+            </div>
+            
+            <div class="area-item">
+                <div class="area-title">2. Replantio Felipe Schmidt</div>
+                <div class="area-description">Atividade principal: replantio dos 69 vasos com flores ornamentais</div>
+            </div>
+            
+            <div class="area-item">
+                <div class="area-title">3. Varrição de Ruas</div>
+                <div class="area-description">Conselheiro Mafra, Jerônimo Coelho e Trajano</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="team-card">
+            <div class="team-number">02</div>
+            <div class="team-title">🟥 Fase 3: Execução — Equipe 2</div>
+            
+            <div class="area-item">
+                <div class="area-title">1. Praças XV e Fernando Machado</div>
+                <div class="area-description">Jardinagem, limpeza de bancos e manutenção de áreas verdes</div>
+            </div>
+            
+            <div class="area-item">
+                <div class="area-title">2. Terminal Cidade</div>
+                <div class="area-description">Limpeza e organização da área do terminal</div>
+            </div>
+            
+            <div class="area-item">
+                <div class="area-title">3. Varrição de Ruas</div>
+                <div class="area-description">Tiradentes, João Pinto, Saldanha Marinho e Nunes Machado</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box">
+        <div class="info-title">📸 Fase 4: Finalização e Registro</div>
+        <div class="info-text">
+            • Recolhimento e organização de materiais e ferramentas<br>
+            • Registro fotográfico completo do "antes e depois"<br>
+            • Reunião rápida de avaliação com coordenadores de equipe<br>
+            • Elaboração de relatório de atividades realizadas<br>
+            • Documentação de resultados para prestação de contas pública
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box" style="border-color: #FFD700;">
+        <div class="info-title" style="color: #FFD700;">⚠️ Checklist de Segurança Obrigatório</div>
+        <div class="info-text">
+            ✓ Uso obrigatório de EPIs durante toda a operação<br>
+            ✓ Sinalização adequada em todas as áreas de trabalho<br>
+            ✓ Hidratação constante de toda a equipe<br>
+            ✓ Pausas regulares programadas a cada 2 horas<br>
+            ✓ Kit de primeiros socorros sempre acessível<br>
+            ✓ Coordenador de segurança disponível em campo<br>
+            ✓ Comunicação direta com equipe de apoio
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# PÁGINA: SOBRE
+elif st.session_state.page == 'sobre':
+    st.markdown('<div class="map-title">💚 Sobre o Projeto Aliança por Floripa</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box">
+        <div class="info-title">🎯 Nossa Missão</div>
+        <div class="info-text">
+            <p>A Aliança por Floripa é uma <strong>iniciativa da sociedade civil</strong> que reúne a ACIF (Associação Empresarial de Florianópolis), a CDL Florianópolis e o Conseg Centro, com apoio da Prefeitura de Florianópolis e do projeto Rumo Certo da Associação Alberto de Souza.</p>
+            <br>
+            <p><strong>Nosso propósito é simples e poderoso:</strong> unir forças para transformar esmolas em oportunidades reais, garantindo que cada contribuição seja aplicada de forma transparente e efetiva para reinserir pessoas na sociedade.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="info-box">
+            <div class="info-title">🌆 Impacto Urbano</div>
+            <div class="info-text">
+                <strong>✓ Centro mais limpo e organizado</strong><br>
+                Varrição completa de vias e praças<br><br>
+                
+                <strong>✓ Espaços públicos revitalizados</strong><br>
+                Jardinagem e manutenção de áreas verdes<br><br>
+                
+                <strong>✓ Valorização do comércio local</strong><br>
+                Ambiente mais atrativo para clientes<br><br>
+                
+                <strong>✓ Atração de visitantes</strong><br>
+                Centro histórico mais acolhedor
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="info-box">
+            <div class="info-title">👥 Impacto Social</div>
+            <div class="info-text">
+                <strong>✓ Oportunidades de trabalho digno</strong><br>
+                Contratação formal de pessoas em vulnerabilidade<br><br>
+                
+                <strong>✓ Capacitação profissional</strong><br>
+                Treinamento em jardinagem e limpeza urbana<br><br>
+                
+                <strong>✓ Reinserção social efetiva</strong><br>
+                Metodologia comprovada do Projeto Rumo Certo<br><br>
+                
+                <strong>✓ Transformação de vidas</strong><br>
+                Dignidade e cidadania restauradas
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box">
+        <div class="info-title">🔍 Transparência Total</div>
+        <div class="info-text">
+            <p><strong>Gestão Compartilhada:</strong> O fundo é gerido em conjunto pela ACIF, CDL e Conseg Centro, com apoio institucional da Prefeitura e metodologia do projeto Rumo Certo.</p>
+            <br>
+            <p><strong>Auditoria Regular:</strong> Todas as movimentações passam por auditoria e prestação de contas pública, garantindo que cada recurso seja aplicado corretamente.</p>
+            <br>
+            <p><strong>Relatórios Periódicos:</strong> Parceiros e doadores terão acesso a relatórios periódicos com os resultados alcançados e o impacto gerado no centro histórico.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box" style="background: linear-gradient(135deg, #FF4655 0%, #FF6B6B 100%); border: none;">
+        <div class="info-title" style="color: white; text-align: center; font-size: 2.5rem;">💚 Faça Parte Desta Transformação</div>
+        <div class="info-text" style="color: white; text-align: center; font-size: 1.3rem;">
+            <br>
+            <p style="font-size: 2rem; font-weight: 800; margin: 1rem 0;">www.aliancaporfloripa.com.br</p>
+            <p style="font-size: 1.2rem;">Doe via PIX • Acompanhe resultados • Transforme vidas</p>
+            <br>
+            <p style="font-size: 1rem; font-weight: 600;">Quem ontem usava as praças para dormir,<br>amanhã poderá estar preservando elas.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Parceiros
+    st.markdown('<br><br>', unsafe_allow_html=True)
+    st.markdown('<div class="map-title" style="font-size: 2rem;">🤝 Parceiros</div>', unsafe_allow_html=True)
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    parceiros = [
+        ("ACIF", "Associação Empresarial"),
+        ("CDL", "CDL Florianópolis"),
+        ("Conseg", "Conseg Centro"),
+        ("Prefeitura", "Florianópolis"),
+        ("Rumo Certo", "Projeto Social")
+    ]
+    
+    for col, (nome, desc) in zip([col1, col2, col3, col4, col5], parceiros):
+        with col:
+            st.markdown(f"""
+            <div class="stat-card" style="text-align: center; padding: 1.5rem;">
+                <div class="stat-label" style="font-size: 1.1rem; color: #FF4655;">{nome}</div>
+                <div class="stat-description" style="margin-top: 0.5rem;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+# Footer
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("""
+<div style="text-align: center; color: #666; padding: 3rem 0; border-top: 2px solid #FF4655; margin-top: 3rem;">
+    <p style="font-size: 1.3rem; color: #FF4655; font-weight: 700; margin-bottom: 1rem;">Aliança por Floripa</p>
+    <p style="font-size: 1rem; color: #aaa;">Uma iniciativa da sociedade civil para transformar o centro de Florianópolis</p>
+    <p style="font-size: 0.9rem; color: #888; margin-top: 1.5rem;">
+        ACIF • CDL Florianópolis • Conseg Centro • Prefeitura de Florianópolis • Projeto Rumo Certo
+    </p>
+    <p style="font-size: 0.8rem; color: #666; margin-top: 2rem;">
+        Dashboard Operacional desenvolvido para gestão e acompanhamento do projeto
+    </p>
+</div>
+""", unsafe_allow_html=True)
             <div class="area-title">🔵 Agência Central dos Correios <span class="status-badge status-andamento">Em Andamento</span></div>
             <div class="area-description">Praça XV de Novembro, 242 • Limpeza completa da área externa e entorno</div>
         </div>
