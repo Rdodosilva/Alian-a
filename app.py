@@ -2,8 +2,13 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
-from data.project_data import *
+import sys
 import os
+
+# Adicionar o diretório ao path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from data.project_data import *
 
 # Configuração da página
 st.set_page_config(
