@@ -1,210 +1,237 @@
-# 🚀 Guia de Deploy - Aliança por Floripa
+# Projeto Aliança por Floripa
 
-## 📋 Pré-requisitos
+## Descrição
 
-- Conta no GitHub
-- Python 3.8+ instalado (para testes locais)
+Aplicação Streamlit interativa para o **Projeto Aliança por Floripa**, uma iniciativa colaborativa de revitalização do centro histórico de Florianópolis.
 
-## 🔧 Estrutura de Arquivos Necessários
+O projeto une forças de múltiplas organizações para:
+- Realizar limpeza e revitalização do centro histórico
+- Proporcionar capacitação e oportunidades de trabalho
+- Transformar espaços públicos
+- Reinserir pessoas em vulnerabilidade social
 
-Crie a seguinte estrutura no seu repositório:
+## Funcionalidades
 
-```
-alianca-por-floripa/
-│
-├── app.py                    # Código principal (já fornecido)
-├── requirements.txt          # Dependências (já fornecido)
-├── README.md                # Documentação (já fornecido)
-└── .streamlit/
-    └── config.toml          # Configurações (já fornecido)
-```
+### 📊 Dashboard
+- Métricas principais do projeto (áreas, vasos, colaboradores)
+- Propósito e missão do projeto
+- Status atual das atividades
+- Link para o site oficial
 
-## 📦 Passo 1: Criar Repositório no GitHub
+### 🗺️ Mapa de Atuação
+- Mapa interativo com as áreas de atuação
+- Visualização de áreas em andamento (azul) e planejadas (vermelho)
+- Informações detalhadas de cada localidade
 
-1. Acesse [github.com](https://github.com)
-2. Clique em **"New repository"**
-3. Nome: `alianca-por-floripa`
-4. Descrição: `Dashboard do projeto Aliança por Floripa`
-5. Escolha **Public** ou **Private**
-6. **NÃO** inicialize com README (vamos adicionar manualmente)
-7. Clique em **"Create repository"**
+### 👥 Equipes
+- Informações sobre as 2 equipes de trabalho
+- Áreas de responsabilidade
+- Número de colaboradores
 
-## 📤 Passo 2: Fazer Upload dos Arquivos
+### 📅 Roteiro Operacional
+- 4 fases de execução do projeto
+- Atividades detalhadas de cada fase
+- Cronograma de implementação
 
-### Opção A: Via Interface Web do GitHub
+### 🛠️ Recursos e Materiais
+- Lista de equipamentos utilizados
+- EPIs (Equipamentos de Proteção Individual)
+- Materiais necessários
+- Checklist de segurança
 
-1. No repositório criado, clique em **"Add file" > "Upload files"**
-2. Arraste os 4 arquivos:
-   - `app.py`
-   - `requirements.txt`
-   - `README.md`
-   - Crie pasta `.streamlit` e adicione `config.toml`
-3. Commit: "Initial commit - Aliança por Floripa dashboard"
-4. Clique em **"Commit changes"**
+### ℹ️ Sobre o Projeto
+- Informações gerais do projeto
+- Parceiros envolvidos
+- Links úteis
+- Compromisso com transparência
 
-### Opção B: Via Git Command Line
+## Instalação
 
+### Pré-requisitos
+- Python 3.8+
+- pip
+
+### Passos
+
+1. Clone ou baixe o projeto:
 ```bash
-# Inicializar repositório local
-git init
-git add .
-git commit -m "Initial commit - Aliança por Floripa dashboard"
-
-# Conectar ao GitHub (substitua SEU-USUARIO)
-git remote add origin https://github.com/SEU-USUARIO/alianca-por-floripa.git
-git branch -M main
-git push -u origin main
+cd alianca-floripa
 ```
 
-## 🌐 Passo 3: Deploy no Streamlit Cloud
-
-1. Acesse [share.streamlit.io](https://share.streamlit.io)
-
-2. Clique em **"New app"**
-
-3. Configure:
-   - **Repository**: `seu-usuario/alianca-por-floripa`
-   - **Branch**: `main`
-   - **Main file path**: `app.py`
-   - **App URL**: `alianca-floripa` (ou nome desejado)
-
-4. Clique em **"Deploy!"**
-
-5. Aguarde 2-3 minutos para o deploy completar
-
-6. Seu app estará disponível em:
-   ```
-   https://alianca-floripa.streamlit.app
-   ```
-
-## ✅ Verificação do Deploy
-
-Após o deploy, verifique se:
-
-- ✅ O app carrega sem erros
-- ✅ O mapa é exibido corretamente
-- ✅ As cores estão corretas (verde, azul, vermelho)
-- ✅ Correios e TICEN estão destacados em azul
-- ✅ Todas as páginas funcionam
-- ✅ A navegação no sidebar funciona
-
-## 🔄 Atualizações Futuras
-
-Para atualizar o app:
-
-1. Edite os arquivos no GitHub
-2. Faça commit das mudanças
-3. O Streamlit Cloud irá automaticamente fazer redeploy
-
-Ou via Git:
+2. Instale as dependências:
 ```bash
-git add .
-git commit -m "Descrição das mudanças"
-git push origin main
+pip install -r requirements.txt
 ```
 
-## 🎨 Personalização de Cores
+3. Execute a aplicação:
+```bash
+streamlit run app.py
+```
 
-Para alterar as cores do projeto, edite `.streamlit/config.toml`:
+4. A aplicação abrirá automaticamente em seu navegador (geralmente em `http://localhost:8501`)
+
+## Estrutura do Projeto
+
+```
+alianca-floripa/
+├── app.py                    # Aplicação principal do Streamlit
+├── requirements.txt          # Dependências do projeto
+├── README.md                 # Este arquivo
+├── .streamlit/
+│   └── config.toml          # Configurações do Streamlit
+├── assets/
+│   └── logo.png             # Logo do projeto
+└── data/
+    └── project_data.py      # Dados do projeto
+```
+
+## Dados do Projeto
+
+### Áreas de Atuação
+
+#### Em Andamento (Azul)
+- Edifício dos Correios - Agência Central (Praça XV de Novembro, 242)
+- Terminal Cidade de Florianópolis (antigo terminal)
+
+#### Planejadas (Vermelho)
+- Rua Felipe Schmidt (replantio de 69 vasos)
+- Praça XV de Novembro
+- Praça Fernando Machado
+- Rua Conselheiro Mafra
+- Rua Jerônimo Coelho
+- Rua Trajano
+- Rua Tiradentes
+- Calçadão João Pinto
+- Rua Saldanha Marinho
+- Rua Nunes Machado
+
+### Equipes
+
+**Equipe 1 - Zona Comercial Norte**
+- 10 colaboradores
+- Responsável pela zona comercial norte do centro
+
+**Equipe 2 - Praças e Zona Sul**
+- 10 colaboradores
+- Responsável pelas praças e zona sul do centro
+
+### Parceiros
+
+- ACIF (Associação Empresarial de Florianópolis)
+- CDL Florianópolis
+- Conseg Centro
+- Prefeitura de Florianópolis (apoio)
+- Projeto Rumo Certo (Associação Alberto de Souza)
+
+## Configuração
+
+As configurações do Streamlit estão em `.streamlit/config.toml`:
 
 ```toml
 [theme]
-primaryColor = "#E63946"          # Cor principal (vermelho Aliança)
-backgroundColor = "#FFFFFF"        # Fundo branco
-secondaryBackgroundColor = "#F8F9FA"  # Fundo secundário cinza claro
-textColor = "#333333"              # Texto cinza escuro
+primaryColor = "#009678"
+backgroundColor = "#f0f5f5"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#1a1a1a"
 ```
 
-## 🗺️ Personalização do Mapa
+## Desenvolvimento
 
-Para adicionar/remover áreas, edite em `app.py`:
+Para modificar os dados do projeto, edite o arquivo `data/project_data.py`.
 
+### Adicionar uma nova área
 ```python
-# Áreas em andamento (AZUL)
-areas_azul = [
-    {
-        'name': 'Nome da Área',
-        'coords': [[lat1, lon1], [lat2, lon2], [lat3, lon3], [lat4, lon4]]
-    }
-]
-
-# Áreas planejadas (VERMELHO)
-areas_vermelho = [...]
-
-# Áreas concluídas (VERDE)
-areas_verde = [...]
+AREAS_PLANNED.append({
+    "name": "Nome da Área",
+    "location": "Localização",
+    "status": "planejada",
+    "lat": -27.5945,
+    "lng": -48.5475,
+    "description": "Descrição"
+})
 ```
 
-## 📊 Adicionar Logo Customizada
-
-1. Adicione a logo na pasta do projeto: `logo.png`
-
-2. Atualize em `app.py`:
+### Adicionar uma nova equipe
 ```python
-with st.sidebar:
-    st.image("logo.png", width=200)
+TEAMS.append({
+    "name": "Nome da Equipe",
+    "members": 10,
+    "description": "Descrição",
+    "areas": ["Área 1", "Área 2"]
+})
 ```
 
-3. Commit e push:
+## Deploy
+
+### Streamlit Cloud
+
+1. Faça push do código para um repositório GitHub
+2. Acesse [share.streamlit.io](https://share.streamlit.io)
+3. Conecte seu repositório GitHub
+4. Selecione o arquivo `app.py` como ponto de entrada
+
+### Heroku
+
+1. Crie um arquivo `Procfile`:
+```
+web: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+```
+
+2. Deploy:
 ```bash
-git add logo.png app.py
-git commit -m "Adiciona logo customizada"
-git push origin main
+git push heroku main
 ```
 
-## 🐛 Solução de Problemas
+### Docker
 
-### Erro: "Module not found"
-- Verifique se `requirements.txt` está correto
-- Redeploy manualmente no Streamlit Cloud
+1. Crie um `Dockerfile`:
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["streamlit", "run", "app.py"]
+```
 
-### Mapa não carrega
-- Verifique conexão com internet
-- Confirme que `streamlit-folium` está no requirements
+2. Build e execute:
+```bash
+docker build -t alianca-floripa .
+docker run -p 8501:8501 alianca-floripa
+```
 
-### Cores erradas
-- Limpe cache do navegador
-- Verifique arquivo `config.toml`
+## Contribuindo
 
-### App muito lento
-- Otimize coordenadas do mapa
-- Reduza número de polígonos
-- Use cache do Streamlit: `@st.cache_data`
+Para contribuir com melhorias:
 
-## 📱 Compartilhamento
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-Após deploy bem-sucedido:
+## Licença
 
-1. Copie a URL: `https://alianca-floripa.streamlit.app`
-2. Compartilhe com:
-   - Equipes do projeto
-   - Parceiros (ACIF, CDL, Conseg)
-   - Site oficial Aliança por Floripa
-   - Redes sociais
+Este projeto é de código aberto e disponível sob a licença MIT.
 
-## 🔒 Segurança
+## Contato
 
-- O código é público (transparência do projeto)
-- Não adicione senhas ou chaves de API no código
-- Use Streamlit Secrets para dados sensíveis
+Para mais informações sobre o Projeto Aliança por Floripa:
+- Website: https://www.aliancaporfloripa.com.br/
+- Email: contato@aliancaporfloripa.com.br
 
-## 📈 Analytics (Opcional)
+## Changelog
 
-Para adicionar Google Analytics:
-
-1. Crie arquivo `index.html` na pasta `.streamlit`
-2. Adicione código de tracking
-3. Configure no Streamlit Cloud
-
-## 🎉 Pronto!
-
-Seu dashboard está no ar! 
-
-Qualquer dúvida:
-- Documentação Streamlit: [docs.streamlit.io](https://docs.streamlit.io)
-- Fórum Streamlit: [discuss.streamlit.io](https://discuss.streamlit.io)
+### v1.0.0 (2024-10-31)
+- Versão inicial da aplicação
+- Dashboard com métricas
+- Mapa interativo
+- Seção de equipes
+- Roteiro operacional
+- Recursos e materiais
+- Informações sobre o projeto
 
 ---
 
-**Desenvolvido para o projeto Aliança por Floripa**
-💚 Florianópolis unida para transformar vidas
+**Projeto Aliança por Floripa** © 2024 | Transformando o centro histórico de Florianópolis
+
